@@ -31,9 +31,11 @@ async function run() {
     const db = client.db('blood_donation')
     const usersCollection = db.collection('users')
 
+
+
+    // ==============User=========
     app.post('/users', async (req, res) => {
       const user = req.body;
-
       // prevent duplicate user
       const existingUser = await usersCollection.findOne({ email: user.email });
       if (existingUser) {
@@ -41,6 +43,28 @@ async function run() {
       }
 
       const result = await usersCollection.insertOne(user);
+      res.send(result);
+    });
+
+    //  ============get profile===========
+    app.get('/users/:email', async (req, res) => {
+      const email = req.params.email;
+      const user = await usersCollection.findOne({ email });
+      res.send(user);
+    });
+
+    // ================= UPDATE PROFILE =================
+    app.put('/users/:email', async (req, res) => {
+      const email = req.params.email;
+      const updatedData = req.body;
+
+      delete updatedData.email;
+
+      const result = await usersCollection.updateOne(
+        { email },
+        { $set: updatedData }
+      );
+
       res.send(result);
     });
 
